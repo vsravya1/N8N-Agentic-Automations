@@ -1,0 +1,361 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "your-webhook-path-here"
+      },
+      "id": "5a51438d-0aa8-4206-b608-e11b629318c1",
+      "name": "MCP Server Trigger",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "position": [
+        -40,
+        60
+      ],
+      "webhookId": "your-webhook-id-here",
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_AIRTABLE_BASE_ID",
+          "cachedResultUrl": "https://airtable.com/YOUR_AIRTABLE_BASE_ID",
+          "cachedResultName": "contacts"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_AIRTABLE_TABLE_ID",
+          "cachedResultUrl": "https://airtable.com/YOUR_AIRTABLE_BASE_ID/YOUR_AIRTABLE_TABLE_ID",
+          "cachedResultName": "contact data"
+        },
+        "id": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Record_ID', ``, 'string') }}",
+        "options": {}
+      },
+      "id": "de2865cb-cfb4-477c-9b8f-c3f02a6bb656",
+      "name": "Get Record",
+      "type": "n8n-nodes-base.airtableTool",
+      "position": [
+        -100,
+        320
+      ],
+      "typeVersion": 2.1,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "Ss7NWIAfy9NObKcK",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_AIRTABLE_BASE_ID",
+          "cachedResultUrl": "https://airtable.com/YOUR_AIRTABLE_BASE_ID",
+          "cachedResultName": "contacts"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_AIRTABLE_TABLE_ID",
+          "cachedResultUrl": "https://airtable.com/YOUR_AIRTABLE_BASE_ID/YOUR_AIRTABLE_TABLE_ID",
+          "cachedResultName": "contact data"
+        },
+        "columns": {
+          "value": {
+            "Name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Name', ``, 'string') }}",
+            "email": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('email', ``, 'string') }}",
+            "Assignee": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Assignee', ``, 'string') }}"
+          },
+          "schema": [
+            {
+              "id": "Name",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Assignee",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Assignee",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "type": "options",
+              "display": true,
+              "options": [
+                {
+                  "name": "Todo",
+                  "value": "Todo"
+                },
+                {
+                  "name": "In progress",
+                  "value": "In progress"
+                },
+                {
+                  "name": "Done",
+                  "value": "Done"
+                }
+              ],
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "7a068bec-038d-4956-bb45-48bf8d538ac6",
+      "name": "Create Record",
+      "type": "n8n-nodes-base.airtableTool",
+      "position": [
+        40,
+        520
+      ],
+      "typeVersion": 2.1,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "Ss7NWIAfy9NObKcK",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "deleteRecord",
+        "base": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_AIRTABLE_BASE_ID",
+          "cachedResultUrl": "https://airtable.com/YOUR_AIRTABLE_BASE_ID",
+          "cachedResultName": "contacts"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_AIRTABLE_TABLE_ID",
+          "cachedResultUrl": "https://airtable.com/YOUR_AIRTABLE_BASE_ID/YOUR_AIRTABLE_TABLE_ID",
+          "cachedResultName": "contact data"
+        },
+        "id": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Record_ID', ``, 'string') }}"
+      },
+      "id": "1e4cee64-58f9-45f3-b119-c48dc63577d6",
+      "name": "Delete Record",
+      "type": "n8n-nodes-base.airtableTool",
+      "position": [
+        380,
+        300
+      ],
+      "typeVersion": 2.1,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "Ss7NWIAfy9NObKcK",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_AIRTABLE_BASE_ID",
+          "cachedResultUrl": "https://airtable.com/YOUR_AIRTABLE_BASE_ID",
+          "cachedResultName": "contacts"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_AIRTABLE_TABLE_ID",
+          "cachedResultUrl": "https://airtable.com/YOUR_AIRTABLE_BASE_ID/YOUR_AIRTABLE_TABLE_ID",
+          "cachedResultName": "contact data"
+        },
+        "filterByFormula": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Filter_By_Formula', ``, 'string') }}",
+        "options": {}
+      },
+      "id": "da95471c-f154-4bed-b2a7-e9db4daee5bb",
+      "name": "Search Record",
+      "type": "n8n-nodes-base.airtableTool",
+      "position": [
+        240,
+        460
+      ],
+      "typeVersion": 2.1,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "Ss7NWIAfy9NObKcK",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "🚀 **MCP TRIGGER**\n**AUTHOR DAVID OLUSOLA**\n\nThis is the entry point for AI interactions. When an AI assistant needs to manage contacts, it triggers this workflow through the Model Context Protocol (MCP).\n\n**Function**: Receives AI requests and routes them to appropriate Airtable operations.",
+        "height": 260,
+        "color": null
+      },
+      "id": "ce8c26b2-7976-4a69-b515-a1b98494b458",
+      "name": "MCP Trigger Info",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -260,
+        -40
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "🔍 **GET RECORD**\n\nRetrieves a specific contact record from Airtable using the Record ID.\n\n**Input**: Record_ID from AI\n**Output**: Complete contact details\n**Use Case**: \"Show me details for contact ID xyz\"",
+        "height": 140,
+        "width": 220,
+        "color": null
+      },
+      "id": "51840634-aa7d-405e-b502-d989aa469b57",
+      "name": "Get Record Info",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -320,
+        280
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "➕ **CREATE RECORD**\n\nAdds a new contact to the Airtable database.\n\n**Inputs**: Name, Email, Assignee\n**Output**: New record with auto-generated ID\n**Use Case**: \"Add John Doe with email john@example.com\"",
+        "height": 140,
+        "width": 220,
+        "color": "orange"
+      },
+      "id": "e578f8ed-04d9-4829-a033-82ba410c4445",
+      "name": "Create Record Info",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -180,
+        560
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "🗑️ **DELETE RECORD**\n\nRemoves a contact from the database permanently.\n\n**Input**: Record_ID from AI\n**Output**: Confirmation of deletion\n**Use Case**: \"Delete contact ID xyz\"",
+        "height": 120,
+        "width": 200,
+        "color": "red"
+      },
+      "id": "274a29b9-73fd-4a4c-9a6c-c5b24aaa5587",
+      "name": "Delete Record Info",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        460,
+        220
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "🔎 **SEARCH RECORDS**\n\nFinds contacts based on specific criteria using Airtable formulas.\n\n**Input**: Filter_By_Formula from AI\n**Output**: Matching contact records\n**Use Case**: \"Find all contacts assigned to Sarah\"",
+        "height": 140,
+        "width": 220,
+        "color": "purple"
+      },
+      "id": "487e8983-6495-40ff-8d30-36f19a1f6b76",
+      "name": "Search Record Info",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        240,
+        580
+      ],
+      "typeVersion": 1
+    }
+  ],
+  "connections": {
+    "Get Record": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Record": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Record": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Record": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "pinData": {},
+  "triggerCount": 0,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}

@@ -1,0 +1,167 @@
+{
+  "name": "MCP",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -500,
+        0
+      ],
+      "id": "27675e06-8af8-46d0-a40d-2f0a1a554c5d",
+      "name": "When chat message received",
+      "webhookId": "e92c2194-0f74-436b-b391-572c305563d8"
+    },
+    {
+      "parameters": {
+        "path": "4578e1b4-990c-439c-8256-6a949609e5cc"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "id": "31ecc76e-4453-4424-9afb-aa0cdca204a3",
+      "name": "MCP Server Trigger",
+      "webhookId": "4578e1b4-990c-439c-8256-6a949609e5cc"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -280,
+        0
+      ],
+      "id": "38af53a5-de15-408c-bd94-e68c2b92c977",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -300,
+        220
+      ],
+      "id": "5dfbf20c-ea1a-43e3-a67d-638a5564b826",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "Q9TlL3BJTUOnSXPt",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sseEndpoint": "https://datacloudlabs.app.n8n.cloud/mcp-test/4578e1b4-990c-439c-8256-6a949609e5cc"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1,
+      "position": [
+        -120,
+        220
+      ],
+      "id": "fc3b888c-ae26-49ad-a1e1-0bd81d96a774",
+      "name": "MCP Client"
+    },
+    {
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "value": "apphDRA3cSQnhMcX1",
+          "mode": "list",
+          "cachedResultName": "Task Manager",
+          "cachedResultUrl": "https://airtable.com/apphDRA3cSQnhMcX1"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblP9mVIy6LNLbr3U",
+          "mode": "list",
+          "cachedResultName": "Tasks",
+          "cachedResultUrl": "https://airtable.com/apphDRA3cSQnhMcX1/tblP9mVIy6LNLbr3U"
+        },
+        "id": "=",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtableTool",
+      "typeVersion": 2.1,
+      "position": [
+        520,
+        220
+      ],
+      "id": "5ee4fa38-3b5f-40b6-b379-3a164708659c",
+      "name": "Get a record in Airtable",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "Ss7NWIAfy9NObKcK",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a record in Airtable": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "pinData": {},
+  "triggerCount": 0,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}

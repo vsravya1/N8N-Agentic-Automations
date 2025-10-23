@@ -1,0 +1,193 @@
+{
+  "name": "Notion database update - Calorie tracker",
+  "nodes": [
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "22bd7611-9aa5-804b-abdf-e9397eaf544e",
+          "mode": "list",
+          "cachedResultName": "Food Tracker",
+          "cachedResultUrl": "https://www.notion.so/22bd76119aa5804babdfe9397eaf544e"
+        },
+        "title": "={{ $json[\"Food Item\"][0].text.content }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Date|date",
+              "date": "={{ $now }}"
+            },
+            {
+              "key": "Meal|rich_text",
+              "textContent": "={{ $json.Meal[0].text.content }}"
+            },
+            {
+              "key": "Quantity|rich_text",
+              "textContent": "={{ $json.Quantity[0].text.content }}"
+            },
+            {
+              "key": "Calories|number",
+              "numberValue": "={{ $json.Calories }}"
+            },
+            {
+              "key": "Protein|number",
+              "numberValue": "={{ $json.Protein }}"
+            },
+            {
+              "key": "Carbs|number",
+              "numberValue": "={{ $json.Carbs }}"
+            },
+            {
+              "key": "Fat|number",
+              "numberValue": "={{ $json.Fat }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1076,
+        0
+      ],
+      "id": "94816d5d-cecc-4fb6-a4d5-b97ff29a617b",
+      "name": "Get a database page",
+      "credentials": {
+        "notionApi": {
+          "id": "juW5NjbkWwanMbmr",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        260,
+        0
+      ],
+      "id": "8bbe1835-c803-4c50-8ff7-d78f992c94e1",
+      "name": "When chat message received",
+      "webhookId": "fa69b23f-d809-4ab9-bdf1-f787bec8ab5c"
+    },
+    {
+      "parameters": {
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a helpful assistant that converts food log sentences into flat structured nutrition data.  Given a sentence like:   \"As breakfast, I ate 2 small dosas and 50g peanut chutney\"  Return one JSON object **per food item**, using the structure below:  {   \"food item\": \"\",   \"date\": \"YYYY-MM-DD\",   \"meal\": \"\",   \"quantity\": \"\",   \"calories\": 0,   \"protein\": 0,   \"carbs\": 0,   \"fat\": 0,   \"notes\": \"\" }  - Round all nutrition values to whole numbers. - Use today’s date as the value for `\"date\"`. - Do **not** return arrays or nested objects. - Return **multiple top-level JSON objects** separated by newlines if more than one item. - Do **not** include explanations or extra text. Respond with each JSON object on a new line, with no explanations, no text before or after.  Each output must be a valid standalone JSON object."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        480,
+        0
+      ],
+      "id": "3a7b1320-e783-4dba-a41a-726cdb3e2373",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-4o-mini",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        568,
+        220
+      ],
+      "id": "201b2d4c-5012-46aa-bfc4-9d974736ef7c",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "Q9TlL3BJTUOnSXPt",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the big raw string\nconst rawText = items[0].json.text;\n\n// Use RegEx to find each JSON block individually\nconst jsonBlocks = rawText.match(/{[^}]*}(?=\\s*{|\\s*$)/gs);\n\nif (!jsonBlocks) {\n  throw new Error(\"No valid JSON blocks found\");\n}\n\n// Parse and format each JSON object for Notion\nconst formatted = jsonBlocks.map(block => {\n  const obj = JSON.parse(block);\n\n  return {\n    json: {\n      \"Food Item\": [\n        { text: { content: obj[\"food item\"] } }\n      ],\n\n      \"Meal\": [\n        { text: { content: obj[\"meal\"] } }\n      ],\n      \"Quantity\": [\n        { text: { content: obj[\"quantity\"] } }\n      ],\n      \"Calories\": obj[\"calories\"],\n      \"Protein\": obj[\"protein\"],\n      \"Carbs\": obj[\"carbs\"],\n      \"Fat\": obj[\"fat\"],\n      \"Notes\": [\n        { text: { content: obj[\"notes\"] || \"\" } }\n      ]\n    }\n  };\n});\n\nreturn formatted;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        856,
+        0
+      ],
+      "id": "9716bd15-9840-439e-b1e3-319dbb486eeb",
+      "name": "Code"
+    }
+  ],
+  "connections": {
+    "Get a database page": {
+      "main": [
+        []
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Get a database page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "pinData": {},
+  "triggerCount": 0,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}

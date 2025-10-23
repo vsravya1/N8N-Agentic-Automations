@@ -1,0 +1,356 @@
+{
+  "name": "MCP AirTable operations",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "f4f8f6ea-beea-4485-8537-9fd7c504516a",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        -1440,
+        80
+      ],
+      "webhookId": "c42d1e2e-b175-48cf-bfd4-aa8289266a20",
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are an intelligent task assistant with access to four tools: Search, Create, Update, and Delete.\n\n- Use **Search** only if the user **explicitly requests to view tasks.**\n- Use **Create** to add a new task.\n- Use **Update** to change the due date of a task. Do **not** use Search before Update.\n  - Just pass the assignee name and new due date to the Update tool directly.\n- Use **Delete** to remove a task by assignee.\n\nDo not validate task existence with Search before Update or Delete. Always respond with only the most relevant tool and required parameters.\n\nExamples:\n- \"Fetch all tasks\" → Search\n- \"Create a task for John due July 25\" → Create\n- \"Delete the task assigned to Sarah\" → Delete\n- \"Change due date for Mike’s task to August 1\" → Update (Assignee: Mike, Due Date: August 1)"
+        }
+      },
+      "id": "fe644dc7-b654-48cd-b1b2-9cb94d0fa95b",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -1220,
+        -20
+      ],
+      "typeVersion": 1.9,
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "sseEndpoint": "https://datacloudlabs.app.n8n.cloud/mcp-test/4578e1b4-990c-439c-8256-6a949609e5cc/sse"
+      },
+      "id": "6ddda36f-2a69-4bbd-b710-ea64cec06dd5",
+      "name": "Airtable MCP Client",
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "position": [
+        -1060,
+        200
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "path": "4578e1b4-990c-439c-8256-6a949609e5cc"
+      },
+      "id": "c30978ee-aa21-4b40-b02c-785e5cda0825",
+      "name": "MCP Server Trigger",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "position": [
+        -680,
+        -20
+      ],
+      "webhookId": "a93f35fb-3a86-4475-9ebd-1434aef8e433",
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "apphDRA3cSQnhMcX1",
+          "mode": "list",
+          "cachedResultName": "Task Manager",
+          "cachedResultUrl": "https://airtable.com/apphDRA3cSQnhMcX1"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblP9mVIy6LNLbr3U",
+          "mode": "list",
+          "cachedResultName": "Tasks",
+          "cachedResultUrl": "https://airtable.com/apphDRA3cSQnhMcX1/tblP9mVIy6LNLbr3U"
+        },
+        "filterByFormula": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Filter_By_Formula', ``, 'string') }}",
+        "returnAll": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Return_All', ``, 'boolean') }}",
+        "options": {}
+      },
+      "id": "71883c22-bf9e-474f-8d9f-a80bf6935199",
+      "name": "Search",
+      "type": "n8n-nodes-base.airtableTool",
+      "position": [
+        -540,
+        200
+      ],
+      "typeVersion": 2.1,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "Ss7NWIAfy9NObKcK",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "apphDRA3cSQnhMcX1",
+          "mode": "list",
+          "cachedResultName": "Task Manager",
+          "cachedResultUrl": "https://airtable.com/apphDRA3cSQnhMcX1"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblP9mVIy6LNLbr3U",
+          "mode": "list",
+          "cachedResultName": "Tasks",
+          "cachedResultUrl": "https://airtable.com/apphDRA3cSQnhMcX1/tblP9mVIy6LNLbr3U"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "TaskName": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('TaskName', ``, 'string') }}",
+            "DueDate": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('DueDate', ``, 'string') }}",
+            "Assignee": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Assignee', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "TaskID",
+              "displayName": "TaskID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "TaskName",
+              "displayName": "TaskName",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "DueDate",
+              "displayName": "DueDate",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Assignee",
+              "displayName": "Assignee",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "11b114e2-5e38-4a39-b844-a27f6d6a24a1",
+      "name": "Create",
+      "type": "n8n-nodes-base.airtableTool",
+      "position": [
+        -780,
+        200
+      ],
+      "typeVersion": 2.1,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "Ss7NWIAfy9NObKcK",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-4o-mini",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -1240,
+        220
+      ],
+      "id": "930c5ea9-bcbc-47ea-92bd-1bbfb3bfec55",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "Q9TlL3BJTUOnSXPt",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "Deletes a task by assignee name. Example: 'delete John's task'.",
+        "method": "POST",
+        "url": "https://datacloudlabs.app.n8n.cloud/webhook-test/14ae482d-593b-4526-9ff5-4201b5a588c9",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "=Assignee",
+              "value": "={{ $fromAI('parameters0_Name', ``, 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        -180,
+        180
+      ],
+      "id": "2d6984b7-0a8f-4414-bc9b-a041a945190b",
+      "name": "Delete"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Updates a task by assignee name with new due date. Example: 'Update John's task due date to July 15'.\nRequired parameters:\n1- Assignee - to identify the record\n2- due date - value that needs to be updated.",
+        "method": "POST",
+        "url": "https://datacloudlabs.app.n8n.cloud/webhook-test/3147dece-7107-4171-99e4-75053a4aeccd",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "Assignee",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', ``, 'string') }}"
+            },
+            {
+              "name": "due date",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters1_Value', ``, 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        -380,
+        200
+      ],
+      "id": "26531c2d-c404-4307-b6d8-a053b43c7087",
+      "name": "Update"
+    }
+  ],
+  "connections": {
+    "Create": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable MCP Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    },
+    "Delete": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "pinData": {},
+  "triggerCount": 2,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}

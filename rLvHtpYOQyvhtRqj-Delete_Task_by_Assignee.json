@@ -1,0 +1,148 @@
+{
+  "name": "Delete Task by Assignee",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "14ae482d-593b-4526-9ff5-4201b5a588c9",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "95d91793-ca0f-4497-a406-13992b6a8339",
+      "name": "Webhook",
+      "webhookId": "14ae482d-593b-4526-9ff5-4201b5a588c9"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "apphDRA3cSQnhMcX1",
+          "mode": "list",
+          "cachedResultName": "Task Manager",
+          "cachedResultUrl": "https://airtable.com/apphDRA3cSQnhMcX1"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblP9mVIy6LNLbr3U",
+          "mode": "list",
+          "cachedResultName": "Tasks",
+          "cachedResultUrl": "https://airtable.com/apphDRA3cSQnhMcX1/tblP9mVIy6LNLbr3U"
+        },
+        "filterByFormula": "=={{ '{Assignee} = \"' + $json[\"body\"][\"Assignee\"] + '\"' }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        220,
+        0
+      ],
+      "id": "9a78cfa2-6452-4865-909d-cf9bbf60b269",
+      "name": "Search records",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "Ss7NWIAfy9NObKcK",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "deleteRecord",
+        "base": {
+          "__rl": true,
+          "value": "apphDRA3cSQnhMcX1",
+          "mode": "list",
+          "cachedResultName": "Task Manager",
+          "cachedResultUrl": "https://airtable.com/apphDRA3cSQnhMcX1"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblP9mVIy6LNLbr3U",
+          "mode": "list",
+          "cachedResultName": "Tasks",
+          "cachedResultUrl": "https://airtable.com/apphDRA3cSQnhMcX1/tblP9mVIy6LNLbr3U"
+        },
+        "id": "={{ $json[\"id\"] }}"
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        440,
+        0
+      ],
+      "id": "fd05fc35-ff33-480d-8535-23d7a2af3a53",
+      "name": "Delete a record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "Ss7NWIAfy9NObKcK",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        660,
+        0
+      ],
+      "id": "1fe35927-b0ff-4564-8606-178747c09ea4",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Search records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records": {
+      "main": [
+        [
+          {
+            "node": "Delete a record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete a record": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "pinData": {},
+  "triggerCount": 1,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}

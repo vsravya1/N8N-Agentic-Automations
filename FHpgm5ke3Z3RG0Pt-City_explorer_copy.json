@@ -1,0 +1,289 @@
+{
+  "name": "City explorer copy",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -480,
+        -265
+      ],
+      "id": "29c7881d-b073-4f9e-a8d3-41169955af06",
+      "name": "When chat message received",
+      "webhookId": "aaf2aeb4-8448-419b-a478-6ac38aa50b48"
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.chatInput }}",
+        "schemaType": "fromJson",
+        "jsonSchemaExample": "{\n\t\"City\": \"newyork\",\n\"budget\": 150\n}",
+        "options": {
+          "systemPromptTemplate": "You are an expert extraction algorithm.\nOnly extract relevant information from the text.\nIf you do not know the value of an attribute asked to extract, you may omit the attribute's value. Also, look for year in the prompt and use it."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        -260,
+        -260
+      ],
+      "id": "6a524ba1-263b-4ae2-8875-ac9b5a81acac",
+      "name": "Information Extractor"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -172,
+        -45
+      ],
+      "id": "05473557-d686-4bef-8adf-4b14e968d53c",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "YOsf8InIYk9StIMW",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  json: {\n    City:$input.first().json.output.City ,\n    budget: $input.first().json.output.budget\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        116,
+        -265
+      ],
+      "id": "5fd771b9-0b86-48ec-a393-1bd3c668291f",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "url": "=https://serpapi.com/search.json?engine=google&q=top tourist attractions in {{$json.City}}&api_key={{$vars.SERPAPI_KEY}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        336,
+        -190
+      ],
+      "id": "66570b8b-bf13-44bf-a676-78c02bc9bc5f",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a travel assistant helping users plan attractions for their trip.\n\nUsing the JSON below:\n- City: {{ $json.city }}\n- Total Cost: ${{ $json.totalAttractionCost }}\n- Attractions: {{ $json.selectedAttractions.map(a => `- ${a.name}: $${a.price}`).join('\\n') }}\n\nWrite a friendly, engaging message summarizing the attractions someone can visit in {{ $json.city }} for under $150. Mention the names, ticket prices, and total cost. Format it for a chat reply.\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": ""
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        996,
+        -265
+      ],
+      "id": "67dc634a-90d7-47fa-8830-4b38d67ad31f",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1024,
+        -45
+      ],
+      "id": "499c54d7-d0b8-4775-b26a-0ce37923648f",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "YOsf8InIYk9StIMW",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const sights = $json.top_sights?.sights || [];\nconst city = $input.first().json.City\nconst budget=$input.first().json.budget\n// Sort by highest rating first (descending)\nsights.sort((a, b) => (b.rating || 0) - (a.rating || 0));\n\nconst selected = [];\nlet total = 0;\n\nfor (const sight of sights) {\n  const price = sight.extracted_price;\n\n  if (typeof price !== \"number\") continue;\n\n  if ((total + price) <= budget) {\n    selected.push({\n      name: sight.title,\n      price: price\n    });\n    total += price;\n  }\n\n  if (total >= budget) break;\n}\n\nreturn [{\n  json: {\n    totalAttractionCost: total,\n    city: city,\n    selectedAttractions: selected\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        776,
+        -265
+      ],
+      "id": "401b9358-01d1-4745-9c3c-55d876735d90",
+      "name": "Code3"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        556,
+        -265
+      ],
+      "id": "b1208f71-dca9-4e63-9a49-3ff130e86b0f",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Code3').item.json.totalAttractionCost }}{{ $('Code3').item.json.city }}{{ $('Code3').item.json.selectedAttractions }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1144,
+        -45
+      ],
+      "id": "5297c221-e7e5-451e-9083-58ef3fed34c3",
+      "name": "Simple Memory"
+    }
+  ],
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code3": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Code3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "pinData": {},
+  "triggerCount": 0,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}

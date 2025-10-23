@@ -1,0 +1,124 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "sheetId": "your-sheet-id",
+        "range": "Form Responses 1",
+        "options": {}
+      },
+      "id": "094d9ae9-4bb1-4212-8df5-9a52465a4597",
+      "name": "Google Sheets Trigger",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "name",
+              "value": "={{$json[\"Name\"]}}"
+            },
+            {
+              "name": "email",
+              "value": "={{$json[\"Email\"]}}"
+            },
+            {
+              "name": "question",
+              "value": "={{$json[\"Question\"]}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "dd5fc736-0f32-4f81-bd03-916349d68987",
+      "name": "Set",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        200,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "requestMethod": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "jsonParameters": true,
+        "options": {},
+        "bodyParametersJson": "{\"model\": \"gpt-3.5-turbo\", \"messages\": [{\"role\": \"system\", \"content\": \"You are a helpful assistant responding to customer queries politely.\"}, {\"role\": \"user\", \"content\": \"={{$json[\\\"question\\\"]}}\"}]}",
+        "headerParametersJson": "{\"Content-Type\": \"application/json\", \"Authorization\": \"Bearer YOUR_OPENAI_API_KEY\"}"
+      },
+      "id": "27b0cc1f-172c-4238-9ca3-c770e48ac833",
+      "name": "HTTP Request (OpenAI)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        400,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "subject": "Thanks for your question, {{$json[\"name\"]}}!",
+        "additionalFields": {}
+      },
+      "id": "71ff1c87-1a16-4601-8631-0720bb4cd8d0",
+      "name": "Send Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [
+        600,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request (OpenAI)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request (OpenAI)": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "pinData": {},
+  "triggerCount": 0,
+  "meta": null
+}

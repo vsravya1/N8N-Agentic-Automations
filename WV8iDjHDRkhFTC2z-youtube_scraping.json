@@ -1,0 +1,434 @@
+{
+  "name": "youtube scraping",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1100,
+        20
+      ],
+      "id": "b11d00d8-afd3-4878-bccf-b97c6252c793",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "demo-tedex",
+          "mode": "list",
+          "cachedResultName": "demo-tedex"
+        },
+        "options": {
+          "pineconeNamespace": "ted_talks"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        220,
+        20
+      ],
+      "id": "735c68be-e5b7-425a-bfbc-55c7231bd596",
+      "name": "Pinecone Vector Store",
+      "credentials": {
+        "pineconeApi": {
+          "id": "DgycPygh9TaTvBdY",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        720,
+        -100
+      ],
+      "id": "722b8a3f-848d-43c2-9367-a5195bfa03aa",
+      "name": "When chat message received",
+      "webhookId": "8754dc26-a758-43dc-a7ac-16bdccdccbd7"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        980,
+        -100
+      ],
+      "id": "ba531828-438b-4f1e-b3fa-e78139a2b778",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1060,
+        120
+      ],
+      "id": "9a792b7b-f5b1-4d14-a141-6f561f073156",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        368,
+        240
+      ],
+      "id": "9519f4e3-ef03-4376-98f9-b933d9a36343",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Call this tool to know questions related to ted talk content",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "demo-tedex",
+          "mode": "list",
+          "cachedResultName": "demo-tedex"
+        },
+        "options": {
+          "pineconeNamespace": "ted_talks"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        1180,
+        120
+      ],
+      "id": "14e1f780-e0df-4d0b-a6d5-2636a6d96bd7",
+      "name": "Pinecone Vector Store1",
+      "credentials": {
+        "pineconeApi": {
+          "id": "DgycPygh9TaTvBdY",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsMistralCloud",
+      "typeVersion": 1,
+      "position": [
+        200,
+        220
+      ],
+      "id": "a3fdfebf-32c9-4ae3-8ed4-4d6f9c244bbe",
+      "name": "Embeddings Mistral Cloud",
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "D8zkToGlQncHy80S",
+          "name": "Mistral Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-4o-mini",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        880,
+        100
+      ],
+      "id": "8d0e4b5a-bcff-4a00-87db-e363cc8b5a1c",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "Q9TlL3BJTUOnSXPt",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsMistralCloud",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        320
+      ],
+      "id": "0e76c6ba-30b3-4c13-94fa-7de19120b5b9",
+      "name": "Embeddings Mistral Cloud1",
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "D8zkToGlQncHy80S",
+          "name": "Mistral Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.apify.com/v2/datasets/XJZqHmLRWQG4MJxhw/items?,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -880,
+        20
+      ],
+      "id": "69ca4093-60e5-419e-bd03-0e42f898f2f1",
+      "name": "HTTP GET Actor result"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.captions.captionTracks[1].baseUrl }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -660,
+        120
+      ],
+      "id": "5e60794c-733f-4907-81ac-cf52e7cc2d78",
+      "name": "HTTP Get EN Captions"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the first input item\nconst item = $input.first().json;\n\n// Combine title and description (you can change the separator)\nconst combined = {\n  combinedText: `${item.title} - ${item.description}`\n};\n\n// Return as new item\nreturn [\n  {\n    json: combined\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -440,
+        -80
+      ],
+      "id": "80dbef32-f8f0-465b-b45e-535de4a1bf8e",
+      "name": "Code to get title"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -220,
+        20
+      ],
+      "id": "1dc6b4e7-ef1d-4bae-a72e-88e203a88b40",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\n\nconst longText = `${data.combinedText}\\n\\n${data.transcript}`;\n\nreturn [\n  {\n    json: {\n      id: \"doc-001\",  // you can customize this dynamically if needed\n      text: longText\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        20
+      ],
+      "id": "2e868b64-4971-426c-baeb-656d8b84b16f",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const xml = items[0].json.data;  // your XML string\n\n// Extract text between <text ...>...</text> using regex\nconst matches = [...xml.matchAll(/<text[^>]*>(.*?)<\\/text>/g)];\n\nconst transcript = matches.map(m => m[1]\n  .replace(/&amp;/g, '&')        // decode basic HTML entities\n  .replace(/&quot;/g, '\"')\n  .replace(/&#39;/g, \"'\")\n  .replace(/&lt;/g, '<')\n  .replace(/&gt;/g, '>')\n  .replace(/\\n/g, ' ')           // replace newlines\n).join(' ');\n\nreturn [\n  {\n    json: {\n      transcript\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -440,
+        120
+      ],
+      "id": "61d44559-7e85-4258-b9d2-b8b4ef51b288",
+      "name": "Code to replace special char"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP GET Actor result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Mistral Cloud": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Mistral Cloud1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP GET Actor result": {
+      "main": [
+        [
+          {
+            "node": "HTTP Get EN Captions",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code to get title",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Get EN Captions": {
+      "main": [
+        [
+          {
+            "node": "Code to replace special char",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code to get title": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code to replace special char": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "pinData": {},
+  "triggerCount": 0,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}

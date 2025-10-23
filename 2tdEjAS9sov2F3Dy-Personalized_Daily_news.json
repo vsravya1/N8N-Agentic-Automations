@@ -1,0 +1,454 @@
+{
+  "name": "Personalized Daily news",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -620,
+        30
+      ],
+      "id": "8332075c-177f-4422-8c19-100eecedbd94",
+      "name": "When chat message received",
+      "webhookId": "2a2daf70-5a80-405c-b83b-9c1d48ad06f0"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "apphDRA3cSQnhMcX1",
+          "mode": "list",
+          "cachedResultName": "Task Manager",
+          "cachedResultUrl": "https://airtable.com/apphDRA3cSQnhMcX1"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl6SqeTXj6T7QzNJ",
+          "mode": "list",
+          "cachedResultName": "personalized_news",
+          "cachedResultUrl": "https://airtable.com/apphDRA3cSQnhMcX1/tbl6SqeTXj6T7QzNJ"
+        },
+        "filterByFormula": "={Name} = '{{ $json.chatInput }}'",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -400,
+        30
+      ],
+      "id": "08b128e6-2bfb-4deb-9af1-ee1fea2ec247",
+      "name": "Search records",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "Ss7NWIAfy9NObKcK",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Give a quick weather update for {{$json.location}} as of {{$json.date}}.\n\nCondition: {{$json.condition}}\nTemperature: {{$json.temperature}}\nHumidity: {{$json.humidity}}\nWind: {{$json.wind}}\nChance of rain: {{$json.precipitation}}\n\nWrite this as a short, friendly weather summary. This process will run in the morning and send daily feed to subscriber.\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        480,
+        -220
+      ],
+      "id": "348945aa-e653-49f3-bbdf-38d5b8c49ab4",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Extract Weather JSON Response1').item.json.location }}{{ $('Extract Weather JSON Response1').item.json.location }}{{ $('Extract Weather JSON Response1').item.json.temperature }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        628,
+        0
+      ],
+      "id": "0f452095-10e7-4d68-812b-a87fac9c677d",
+      "name": "Simple Memory1"
+    },
+    {
+      "parameters": {
+        "url": "=https://serpapi.com/search.json?engine=google&q=weather in {{$json.location}}&api_key={{$vars.SERPAPI_KEY}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        40,
+        -120
+      ],
+      "id": "2f6b1235-161a-4e7e-be71-9cdb2f04deac",
+      "name": "Get Weather API"
+    },
+    {
+      "parameters": {
+        "jsCode": "const weather = $json.answer_box;\n\nreturn [{\n  json: {\n    location: weather.location,\n    temperature: `${weather.temperature}° ${weather.unit}`,\n    condition: weather.weather,\n    date: weather.date,\n    precipitation: weather.precipitation,\n    humidity: weather.humidity,\n    wind: weather.wind\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        260,
+        -120
+      ],
+      "id": "8f17e998-8650-4dc8-9002-84407d8bc67e",
+      "name": "Extract Weather JSON Response1"
+    },
+    {
+      "parameters": {
+        "model": "sonar",
+        "messages": {
+          "message": [
+            {
+              "content": "=Please provide the latest news and updates as of today related to these topics:\nInterests: {{ $json.interests }}\nStock Interests: {{ $json.stockInterests }}\nSummarize the key recent developments, news headlines, or trends."
+            }
+          ]
+        },
+        "options": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.perplexity",
+      "typeVersion": 1,
+      "position": [
+        260,
+        180
+      ],
+      "id": "9ef6efff-be99-4c2f-95d9-e56a6824281a",
+      "name": "Message a model",
+      "credentials": {
+        "perplexityApi": {
+          "id": "RgMhz2YTDrNvOedd",
+          "name": "Perplexity account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are formatting AI-generated content for Notion in Markdown style, using **headings**, **bullet points**, and **bold** where appropriate.\n\nYou must ensure:\n- The **entire output is under 1500 characters** (including formatting).\n- No tables in the content.\n- If the content is too long, **summarize or remove less important points**.\n- At the end, if still over 1500 characters, **truncate with \"...\"**.\n- Do not include any intro or explanation before or after the output.\n\nHere is the content from two sources:\n1. {{ $json.output }}\n2. {{ $json.content }}",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        1076,
+        30
+      ],
+      "id": "1a10dce7-1f33-4e4c-9c17-2c26a6f0aa02",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-4o-mini",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        1164,
+        250
+      ],
+      "id": "fb08728d-955d-4612-aaf6-0cf304030b3f",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "Q9TlL3BJTUOnSXPt",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = [];\n\nfor (const item of $input.all()) {\n  const location = item.json[\"Location\"];  // or item.json.Location\n  items.push({\n    json: {\n      location: location\n    }\n  });\n}\n\nreturn items;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -180,
+        -120
+      ],
+      "id": "bc84ea3c-6563-4ec2-bf51-d82b31e65097",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = [];\n\nfor (const item of $input.all()) {\n  items.push({\n    json: {\n      interests: item.json[\"Interests\"],\n      stockInterests: item.json[\"Stock Interests\"]\n    }\n  });\n}\n\nreturn items;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        40,
+        180
+      ],
+      "id": "bca768e5-7cc3-4adf-8b8d-3f90e26e9d69",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        856,
+        30
+      ],
+      "id": "d0734696-f581-454e-9ff5-fa5bd001b3a0",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "pageId": {
+          "__rl": true,
+          "value": "https://www.notion.so/sravs-22bd76119aa580e080e7cf2a09d0324e",
+          "mode": "url"
+        },
+        "title": "=DailyNewsFeed-{{ new Date().toISOString().split('T')[0] }}",
+        "blockUi": {
+          "blockValues": [
+            {
+              "textContent": "={{ $json.text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1452,
+        30
+      ],
+      "id": "2c1aa004-b32b-48a5-a69a-9b3203942328",
+      "name": "Create a page",
+      "credentials": {
+        "notionApi": {
+          "id": "juW5NjbkWwanMbmr",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-4o-mini",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        508,
+        0
+      ],
+      "id": "f974de2a-4736-4694-ba46-d53e24f75de2",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "Q9TlL3BJTUOnSXPt",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    json: {\n      content: $input.first().json.choices[0].message.content\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        558,
+        180
+      ],
+      "id": "fd1b28aa-9259-4539-bf77-a4a52609e06c",
+      "name": "Code3"
+    }
+  ],
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Search records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Weather API": {
+      "main": [
+        [
+          {
+            "node": "Extract Weather JSON Response1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Weather JSON Response1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Code3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Get Weather API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Create a page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a page": {
+      "main": [
+        []
+      ]
+    },
+    "Code3": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "pinData": {},
+  "triggerCount": 0,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}

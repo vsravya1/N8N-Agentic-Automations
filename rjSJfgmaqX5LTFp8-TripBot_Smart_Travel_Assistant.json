@@ -1,0 +1,476 @@
+{
+  "name": "TripBot: Smart Travel Assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -480,
+        -40
+      ],
+      "id": "1250d693-38db-4fb8-9584-15e749356fa9",
+      "name": "When chat message received",
+      "webhookId": "2faefc4f-1b6f-473d-8038-12c6a25517e5"
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.chatInput }}",
+        "schemaType": "fromJson",
+        "jsonSchemaExample": "{\n\t\"City\": \n\"newyork\",\n\"budget\": \n150\n}",
+        "options": {
+          "systemPromptTemplate": "You are an expert extraction algorithm.\nOnly extract relevant information from the text.\nIf you do not know the value of an attribute asked to extract, you may omit the attribute's value. Also, look for year in the prompt and use it."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        -260,
+        -40
+      ],
+      "id": "fb5ee28d-a38a-4d87-a0d8-70298c810463",
+      "name": "Information Extractor"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -172,
+        180
+      ],
+      "id": "66d2e64b-5b9a-42d4-8e66-29cff17bc5ba",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "YOsf8InIYk9StIMW",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a travel assistant helping users plan attractions for their trip.\n\nUsing the JSON below:\n- City: {{ $json.city }}\n- Total Cost: ${{ $json.totalAttractionCost }}\n- Attractions: {{ $json.selectedAttractions.map(a => `- ${a.name}: $${a.price}`).join('\\n') }}\n\nWrite a friendly, engaging message summarizing the attractions someone can visit in {{ $json.city }} for under $150. Mention the names, ticket prices, and total cost. Format it for a chat reply.\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": ""
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        996,
+        -265
+      ],
+      "id": "e9d8bae8-b963-43be-ba7d-eef70d64b82b",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1024,
+        -45
+      ],
+      "id": "20bb722b-ead8-4309-b312-9dfdbc6ebccf",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "YOsf8InIYk9StIMW",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        556,
+        -165
+      ],
+      "id": "1264f2dd-5255-4bc5-9006-37e3d13b356d",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Extract Attractions JSON Response').item.json.totalAttractionCost }}{{ $('Extract Attractions JSON Response').item.json.city }}{{ $('Extract Attractions JSON Response').item.json.selectedAttractions }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1144,
+        -45
+      ],
+      "id": "a3e64681-5fcd-47c4-9a00-fae94d12e086",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Give a quick weather update for {{$json.location}} as of {{$json.date}}.\n\nCondition: {{$json.condition}}\nTemperature: {{$json.temperature}}\nHumidity: {{$json.humidity}}\nWind: {{$json.wind}}\nChance of rain: {{$json.precipitation}}\n\nWrite this as a short, friendly weather summary for a traveler.\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        240
+      ],
+      "id": "60c53445-035d-4f85-980e-d711ae340047",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1024,
+        455
+      ],
+      "id": "38028a82-289e-42f0-bded-d973a2fb9ced",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "YOsf8InIYk9StIMW",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Extract Weather JSON Response1').item.json.location }}{{ $('Extract Weather JSON Response1').item.json.location }}{{ $('Extract Weather JSON Response1').item.json.temperature }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1144,
+        455
+      ],
+      "id": "939d8bc5-788f-4ca8-a19f-61c91741ae14",
+      "name": "Simple Memory1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1372,
+        35
+      ],
+      "id": "08b452ba-9415-4e88-a645-f3c83f865d6d",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "url": "=https://serpapi.com/search.json?engine=google&q=top tourist attractions in {{$json.City}}&api_key={{$vars.SERPAPI_KEY}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        336,
+        -40
+      ],
+      "id": "b8707bb3-48ac-4860-81aa-0918416a7011",
+      "name": "GET Attractions API"
+    },
+    {
+      "parameters": {
+        "url": "=https://serpapi.com/search.json?engine=google&q=weather in {{$json.City}}&api_key={{$vars.SERPAPI_KEY}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        556,
+        235
+      ],
+      "id": "84206df3-9f71-4b2b-9d8d-91c1d5a5b19e",
+      "name": "Get Weather API"
+    },
+    {
+      "parameters": {
+        "jsCode": "const weather = $json.answer_box;\n\nreturn [{\n  json: {\n    location: weather.location,\n    temperature: `${weather.temperature}° ${weather.unit}`,\n    condition: weather.weather,\n    date: weather.date,\n    precipitation: weather.precipitation,\n    humidity: weather.humidity,\n    wind: weather.wind\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        776,
+        235
+      ],
+      "id": "063f664c-1c04-4256-b1cd-90da649dfed0",
+      "name": "Extract Weather JSON Response1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const sights = $json.top_sights?.sights || [];\nconst city = $input.first().json.City\nconst budget=$input.first().json.budget\n// Sort by highest rating first (descending)\nsights.sort((a, b) => (b.rating || 0) - (a.rating || 0));\n\nconst selected = [];\nlet total = 0;\n\nfor (const sight of sights) {\n  const price = sight.extracted_price;\n\n  if (typeof price !== \"number\") continue;\n\n  if ((total + price) <= budget) {\n    selected.push({\n      name: sight.title,\n      price: price\n    });\n    total += price;\n  }\n\n  if (total >= budget) break;\n}\n\nreturn [{\n  json: {\n    totalAttractionCost: total,\n    city: city,\n    selectedAttractions: selected\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        776,
+        -165
+      ],
+      "id": "1a6f7aa7-e6c2-451b-b5a8-b32a0568b84e",
+      "name": "Extract Attractions JSON Response"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  json: {\n    City:$input.first().json.output.City ,\n    budget: $input.first().json.output.budget\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        116,
+        -40
+      ],
+      "id": "21548bea-a8b4-4fa6-b510-31ecd22b1bca",
+      "name": "Convert2Json"
+    },
+    {
+      "parameters": {
+        "jsCode": "const responses = items.map(item => item.json.output || item.json.text || '');\n\nconst combined = responses\n  .filter(r => r.trim() !== '')\n  .join('\\n\\n');\n\nreturn [{\n  json: {\n    finalMessage: combined\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1592,
+        35
+      ],
+      "id": "c6a7c4d1-5ad1-4548-b44e-7e37cc6df022",
+      "name": "Combine Agent op"
+    }
+  ],
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor": {
+      "main": [
+        [
+          {
+            "node": "Convert2Json",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Extract Attractions JSON Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Combine Agent op",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Attractions API": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Get Weather API": {
+      "main": [
+        [
+          {
+            "node": "Extract Weather JSON Response1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Weather JSON Response1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Attractions JSON Response": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert2Json": {
+      "main": [
+        [
+          {
+            "node": "GET Attractions API",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Weather API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "pinData": {},
+  "triggerCount": 0,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}

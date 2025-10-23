@@ -1,0 +1,72 @@
+{
+  "name": "Airtable-search",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "0726b6d8-b7ab-46d7-bcc1-66837ead139c",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appQZJrRFVoCZmnzK",
+          "mode": "list",
+          "cachedResultName": "Feedback Collection",
+          "cachedResultUrl": "https://airtable.com/appQZJrRFVoCZmnzK"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblWdjwc0nRzgjJQB",
+          "mode": "list",
+          "cachedResultName": "Categories",
+          "cachedResultUrl": "https://airtable.com/appQZJrRFVoCZmnzK/tblWdjwc0nRzgjJQB"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        220,
+        0
+      ],
+      "id": "651fe46e-19e8-4fb8-aea2-958473e4ae60",
+      "name": "Search records",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "Ss7NWIAfy9NObKcK",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Search records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "pinData": {},
+  "triggerCount": 0,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}

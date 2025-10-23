@@ -1,0 +1,125 @@
+{
+  "name": "Perplexity+AI Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -660,
+        -80
+      ],
+      "id": "14492955-cb2f-4fb4-af1a-8a77c188b5e1",
+      "name": "When chat message received",
+      "webhookId": "a77ed422-fc82-4a50-9beb-af6a53719b5b"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a research agent with access to a tool called `perplexity_search`.\n\nInstructions:\n- If the user query requires up-to-date or web information, you must use the `perplexity_search` tool.\n- If not, answer directly.\n\nTools available:\n1. `perplexity_search` - Searches the web and returns summaries with citations.\n\nReturn format:\n{\n  \"action\": \"tool\" | \"answer\",\n  \"tool_name\": \"perplexity_search\",     ← only if action is tool\n  \"tool_input\": \"<what to search>\",     ← only if action is tool\n  \"answer\": \"<direct answer>\"           ← only if action is answer\n}\n\nUser query: {{ $json.chatInput }}\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -440,
+        -80
+      ],
+      "id": "787cc574-11c3-41f0-bec5-c9671d862951",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "sonar",
+        "messages": {
+          "message": [
+            {
+              "content": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('message0_Text', ``, 'string') }}"
+            }
+          ]
+        },
+        "options": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.perplexityTool",
+      "typeVersion": 1,
+      "position": [
+        -220,
+        140
+      ],
+      "id": "6bc5cfe5-1da6-4ffe-b2a8-7e7d031c2f89",
+      "name": "Message a model in Perplexity",
+      "credentials": {
+        "perplexityApi": {
+          "id": "RgMhz2YTDrNvOedd",
+          "name": "Perplexity account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -500,
+        140
+      ],
+      "id": "9c1cf0d3-f00c-416e-8d92-c7df83dbdf2e",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "Q9TlL3BJTUOnSXPt",
+          "name": "OpenRouter account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model in Perplexity": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "pinData": {},
+  "triggerCount": 0,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}
